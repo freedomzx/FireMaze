@@ -2,12 +2,7 @@ from collections import deque
 import time
 from mazeGenerator import maze_generator
 import pygame
-
-testMaze = ([[0, 1, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 1],
-            [0, 1, 0, 0]]
-)
+import math
 
 #colors
 black = (0, 0, 0)
@@ -17,38 +12,40 @@ red = (255, 0, 0)
 blue = (0, 0, 255)
 orange = (255, 165, 0)
 
-def checkPathDFS(maze, firstLocation, secondLocation): #maze is a dim x dim matrix, firstLocation is a list of 2 nums, secondLocation is the same
+#maze is a dim x dim matrix, firstLocation is a list of 2 nums, secondLocation is the same.  check if there's a path from start to goal via bfs
+def checkPathDFS(maze, firstLocation, secondLocation): 
     fringe = deque() #use a stack for DFS
     fringe.append(firstLocation)
     visited = []
     while fringe:
         current = fringe.pop()
-        if current[0] == secondLocation[0] and current[1] == secondLocation[1]:
+        if current[0] == secondLocation[0] and current[1] == secondLocation[1]: #if found goal then get out of here
             print(maze)
             return True #found a path
         else:
             if current not in visited:
                 currentFirst = current[0]
                 currentSecond = current[1]
-                if currentFirst-1 >= 0 and currentFirst-1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze):
+                #check 4 neighbors to see which we can add to fringe
+                if currentFirst-1 >= 0 and currentFirst-1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #up
                     temp = []
                     temp.append(currentFirst-1)
                     temp.append(currentSecond)
                     if maze[temp[0]][temp[1]] == 0 and temp not in visited:
                         fringe.append(temp)
-                if currentFirst >= 0 and currentFirst < len(maze) and currentSecond-1 >= 0 and currentSecond-1 < len(maze):
+                if currentFirst >= 0 and currentFirst < len(maze) and currentSecond-1 >= 0 and currentSecond-1 < len(maze): #left
                     temp = []
                     temp.append(currentFirst)
                     temp.append(currentSecond-1)
                     if maze[temp[0]][temp[1]] == 0 and temp not in visited:
                         fringe.append(temp)
-                if currentFirst+1 >= 0 and currentFirst+1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze):
+                if currentFirst+1 >= 0 and currentFirst+1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #down
                     temp = []
                     temp.append(currentFirst+1)
                     temp.append(currentSecond)
                     if maze[temp[0]][temp[1]] == 0 and temp not in visited:
                         fringe.append(temp)
-                if currentFirst >= 0 and currentFirst < len(maze) and currentSecond+1 >= 0 and currentSecond+1 < len(maze):
+                if currentFirst >= 0 and currentFirst < len(maze) and currentSecond+1 >= 0 and currentSecond+1 < len(maze): #right
                     temp = []
                     temp.append(currentFirst)
                     temp.append(currentSecond+1)
@@ -59,7 +56,8 @@ def checkPathDFS(maze, firstLocation, secondLocation): #maze is a dim x dim matr
 
     return False
 
-def visualizeDFS(maze, firstLocation, secondLocation):
+#visualize DFS via pygame
+def visualizeDFS(maze, firstLocation, secondLocation): 
     dimen = len(maze)
     width = 5
     height = 5
@@ -102,32 +100,33 @@ def visualizeDFS(maze, firstLocation, secondLocation):
         visited = []
         while fringe:
             current = fringe.pop()
-            if current[0] == secondLocation[0] and current[1] == secondLocation[1]:
+            if current[0] == secondLocation[0] and current[1] == secondLocation[1]: #if found goal then get out of here
                 success = True
                 break
             else:
                 if current not in visited:
                     currentFirst = current[0]
                     currentSecond = current[1]
-                    if currentFirst-1 >= 0 and currentFirst-1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze):
+                    #check 4 neighbors to see which we can add to fringe
+                    if currentFirst-1 >= 0 and currentFirst-1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #up
                         temp = []
                         temp.append(currentFirst-1)
                         temp.append(currentSecond)
                         if maze[temp[0]][temp[1]] == 0 and temp not in visited:
                             fringe.append(temp)
-                    if currentFirst >= 0 and currentFirst < len(maze) and currentSecond-1 >= 0 and currentSecond-1 < len(maze):
+                    if currentFirst >= 0 and currentFirst < len(maze) and currentSecond-1 >= 0 and currentSecond-1 < len(maze): #left
                         temp = []
                         temp.append(currentFirst)
                         temp.append(currentSecond-1)
                         if maze[temp[0]][temp[1]] == 0 and temp not in visited:
                             fringe.append(temp)
-                    if currentFirst+1 >= 0 and currentFirst+1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze):
+                    if currentFirst+1 >= 0 and currentFirst+1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #down
                         temp = []
                         temp.append(currentFirst+1)
                         temp.append(currentSecond)
                         if maze[temp[0]][temp[1]] == 0 and temp not in visited:
                             fringe.append(temp)
-                    if currentFirst >= 0 and currentFirst < len(maze) and currentSecond+1 >= 0 and currentSecond+1 < len(maze):
+                    if currentFirst >= 0 and currentFirst < len(maze) and currentSecond+1 >= 0 and currentSecond+1 < len(maze): #right
                         temp = []
                         temp.append(currentFirst)
                         temp.append(currentSecond+1)
@@ -146,9 +145,8 @@ def visualizeDFS(maze, firstLocation, secondLocation):
                     visited.insert(0, current)
     pygame.quit()
     return success
-            
-    
 
+#find the shortest path via BFS            
 def findShortestBFS(maze, firstLocation, secondLocation):
     fringe = deque() #use a queue for BFS
     first = [firstLocation[0], firstLocation[1], []]
@@ -217,7 +215,16 @@ def findShortestBFS(maze, firstLocation, secondLocation):
     
     return -1
 
+#find shortest path via A* and heuristic
+def findShortestA(maze, firstLocation, secondLocation):
+    pass
 
-print(visualizeDFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
+#heuristic that guesses distance based on euclidean dist formula
+def determineEuDist(firstLocation, secondLocation):
+    return math.sqrt(math.pow(firstLocation[0] - secondLocation[0], 2) + math.pow(firstLocation[1] - secondLocation[1], 2))
+
+print(visualizeDFS(maze_generator(100, 0.15), [0, 0], [99, 99]))
 # print(checkPathDFS(testMaze, [0, 0], [3, 3]))
 # print(findShortestBFS(testMaze, [0, 0], [3, 3]))
+
+#print(determineEuDist([0, 0], [99, 99]))
