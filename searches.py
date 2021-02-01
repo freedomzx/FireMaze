@@ -3,6 +3,7 @@ import time
 from mazeGenerator import maze_generator
 import pygame
 import math
+import heapq
 
 #colors
 black = (0, 0, 0)
@@ -51,7 +52,7 @@ def checkPathDFS(maze, firstLocation, secondLocation):
                     temp.append(currentSecond+1)
                     if maze[temp[0]][temp[1]] == 0 and temp not in visited:
                         fringe.append(temp)
-
+                #add current procesed node to visited list
                 visited.insert(0, current)
 
     return False
@@ -215,13 +216,59 @@ def findShortestBFS(maze, firstLocation, secondLocation):
     
     return -1
 
-#find shortest path via A* and heuristic
-def findShortestA(maze, firstLocation, secondLocation):
-    pass
-
 #heuristic that guesses distance based on euclidean dist formula
 def determineEuDist(firstLocation, secondLocation):
     return math.sqrt(math.pow(firstLocation[0] - secondLocation[0], 2) + math.pow(firstLocation[1] - secondLocation[1], 2))
+
+#find the index in infoList based on row and column
+def findILIndex(row, column):
+    return row*100 + column
+
+#just check if a child node could be valid for A*
+def checkValidChild(mazeDimensions, row, column):
+    if (row >= 0 and row < mazeDimensions) and (column >= 0 and column < mazeDimensions):
+        return True
+    return False
+
+#find shortest path via A* and heuristic
+def findShortestA(maze, firstLocation, secondLocation):
+    infoList = [] #list of dictionaries for information of each potential node
+    for i in range(len(maze)):
+        for j in range(len(maze)):
+            toAdd = {}
+            # toAdd.append(999999999)
+            # toAdd.append(False)
+            # toAdd.append([-1, -1])
+            # toAdd.append(determineEuDist([i, j], secondLocation))
+            toAdd["distance"] = 999999999
+            toAdd["processed"] = False
+            toAdd["previous"] = [-1, -1]
+            toAdd["estimated_distance"] = determineEuDist([i, j], [secondLocation[0], secondLocation[1]])
+            infoList.append(toAdd)
+
+    #set the root's distance to itself to 0 and set the previous node for it to 0
+    infoList[findILIndex(firstLocation[0], firstLocation[1])][0] = 0
+    infoList[findILIndex(firstLocation[0], firstLocation[1])][2] = [firstLocation[0], secondLocation[0]]
+    
+    #create fringe and push root onto it
+    fringe = []
+    heapq.heappush(fringe, [0, [firstLocation[0], firstLocation[1]]])
+
+    #search
+    while fringe:
+        item = heapq.heappop(fringe) #an item will look like [dist, [coord1, coord2]]
+        index = findILIndex(item[1][0], item[1][1])
+        if not infoList[index]["processed"]: #if not processed yet go thorugh children
+            if checkValidChild(len(maze), item[1][0]-1, item[1][1]) and maze[item[1][0]-1][item[1][1]] != 1:#up
+                pass
+            if checkValidChild(len(maze), item[1][0], item[1][1]-1) and maze[item[1][0]][item[1][1]-1] != 1:#left
+                pass
+            if checkValidChild(len(maze), item[1][0]+1, item[1][1]) and maze[item[1][0]+1][item[1][1]] != 1:#down
+                pass
+            if checkValidChild(len(maze), item[1][0], item[1][1]+1) and maze[item[1][0]][item[1][1]+1] != 1:#right
+                pass
+        infoList[index]["processed"] = True
+
 
 print(visualizeDFS(maze_generator(100, 0.15), [0, 0], [99, 99]))
 # print(checkPathDFS(testMaze, [0, 0], [3, 3]))
