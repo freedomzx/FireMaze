@@ -5,6 +5,12 @@ import pygame
 import math
 import heapq
 
+testMaze = [[0, 1, 0, 0],
+[0, 1, 1, 0],
+[0 , 0, 0, 1],
+[0, 1, 0, 0]]
+
+
 #colors
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -54,7 +60,7 @@ def checkPathDFS(maze, firstLocation, secondLocation):
                         fringe.append(temp)
                 #add current procesed node to visited list
                 visited.insert(0, current)
-
+    #couldnt find anything
     return False
 
 #visualize DFS via pygame
@@ -74,9 +80,9 @@ def visualizeDFS(maze, firstLocation, secondLocation):
         for j in range(dimen):
             color = white
             if i == firstLocation[0] and j == firstLocation[1]:
-                color = green
+                color = green #color start green
             elif i == secondLocation[0] and j == secondLocation[1]:
-                color = red
+                color = red #color goal red
             elif maze[i][j] == 1:
                 color = black
             pygame.draw.rect(screen,
@@ -221,57 +227,117 @@ def determineEuDist(firstLocation, secondLocation):
     return math.sqrt(math.pow(firstLocation[0] - secondLocation[0], 2) + math.pow(firstLocation[1] - secondLocation[1], 2))
 
 #find the index in infoList based on row and column
-def findILIndex(row, column):
-    return row*100 + column
+def findILIndex(row, column, dim):
+    return row*dim + column
 
 #just check if a child node could be valid for A*
-def checkValidChild(mazeDimensions, row, column):
-    if (row >= 0 and row < mazeDimensions) and (column >= 0 and column < mazeDimensions):
+#coudlve made this for DFS/BFS but too lazy to go back and put it in, so just for A* instead
+def checkValidChild(maze, row, column):
+    if (row >= 0 and row < len(maze)) and (column >= 0 and column < len(maze)) and maze[row][column] != 1:
         return True
     return False
 
+#add or update something to fringe
+def addOrUpdate(fringe, newKey, coordinates):
+    found = False
+    for i in fringe: #check if it exists, update if so
+        if i[1] == coordinates:
+            i[0] = newKey
+            found = True
+            break
+    #if it doesnt exist, add it in
+    if not found:
+        heapq.heappush(fringe, [newKey, coordinates])
+    #re-heapify the fringe
+    heapq.heapify(fringe)
+    # print("added/updated")
+    # print(fringe)
+
 #find shortest path via A* and heuristic
 def findShortestA(maze, firstLocation, secondLocation):
-    infoList = [] #list of dictionaries for information of each potential node
+    infoList = [] #list of dictionaries for information of each potential index in matrix
     for i in range(len(maze)):
         for j in range(len(maze)):
-            toAdd = {}
-            # toAdd.append(999999999)
-            # toAdd.append(False)
-            # toAdd.append([-1, -1])
-            # toAdd.append(determineEuDist([i, j], secondLocation))
-            toAdd["distance"] = 999999999
-            toAdd["processed"] = False
-            toAdd["previous"] = [-1, -1]
-            toAdd["estimated_distance"] = determineEuDist([i, j], [secondLocation[0], secondLocation[1]])
+            toAdd = {} #dictionary of properties
+            toAdd["distance"] = 999999 # from root
+            toAdd["processed"] = False #processed in while loop or not
+            toAdd["previous"] = [-1, -1] #previous coordinates
+            toAdd["estimated_distance"] = determineEuDist([i, j], [secondLocation[0], secondLocation[1]]) #heuristic
             infoList.append(toAdd)
 
-    #set the root's distance to itself to 0 and set the previous node for it to 0
-    infoList[findILIndex(firstLocation[0], firstLocation[1])][0] = 0
-    infoList[findILIndex(firstLocation[0], firstLocation[1])][2] = [firstLocation[0], secondLocation[0]]
+    #set the root's distance to itself to 0 and set the previous node for it to itself
+    rootIndex = findILIndex(firstLocation[0], firstLocation[1], len(maze))
+    infoList[rootIndex]["distance"] = 0
+    infoList[rootIndex]["previous"] = [firstLocation[0], secondLocation[0]]
     
     #create fringe and push root onto it
+    #fringe priority is estimated distance to the goal node
     fringe = []
-    heapq.heappush(fringe, [0, [firstLocation[0], firstLocation[1]]])
+    heapq.heappush(fringe, [infoList[rootIndex]["estimated_distance"], [firstLocation[0], firstLocation[1]]])
 
-    #search
+    #work and process child nodes thru fringe until either fringe is empty or goal is reached
     while fringe:
-        item = heapq.heappop(fringe) #an item will look like [dist, [coord1, coord2]]
-        index = findILIndex(item[1][0], item[1][1])
-        if not infoList[index]["processed"]: #if not processed yet go thorugh children
-            if checkValidChild(len(maze), item[1][0]-1, item[1][1]) and maze[item[1][0]-1][item[1][1]] != 1:#up
-                pass
-            if checkValidChild(len(maze), item[1][0], item[1][1]-1) and maze[item[1][0]][item[1][1]-1] != 1:#left
-                pass
-            if checkValidChild(len(maze), item[1][0]+1, item[1][1]) and maze[item[1][0]+1][item[1][1]] != 1:#down
-                pass
-            if checkValidChild(len(maze), item[1][0], item[1][1]+1) and maze[item[1][0]][item[1][1]+1] != 1:#right
-                pass
-        infoList[index]["processed"] = True
+        current = heapq.heappop(fringe) #current will look like [distance, [coord1, coord2]]
+        currentIndex = findILIndex(current[1][0], current[1][1], len(maze))
+        currentDistance = infoList[currentIndex]["distance"]
+        if not infoList[currentIndex]["processed"]:
+            #check 4 potential children
+            #up
+            if checkValidChild(maze, current[1][0]-1, current[1][1]):
+                #print("valid chek1")
+                childIndex = findILIndex(current[1][0]-1, current[1][1], len(maze))
+                if currentDistance + 1 < infoList[childIndex]["distance"]: #check if the current path is better than recorded
+                    infoList[childIndex]["distance"] = currentDistance + 1
+                    infoList[childIndex]["previous"] = [current[1][0], current[1][1]]
+                    addOrUpdate(fringe, currentDistance + 1, [current[1][0]-1, current[1][1]])
 
+                #now check if that was the goal
+                if current[1][0]-1 == secondLocation[0] and current[1][1] == secondLocation[1]:
+                    return ["Yes"]
+            #left
+            if checkValidChild(maze, current[1][0], current[1][1]-1): 
+                #print("valid chek2")
+                childIndex = findILIndex(current[1][0], current[1][1]-1, len(maze))
+                if currentDistance + 1 < infoList[childIndex]["distance"]: #check if the current path is better than recorded
+                    infoList[childIndex]["distance"] = currentDistance + 1
+                    infoList[childIndex]["previous"] = [current[1][0], current[1][1]]
+                    addOrUpdate(fringe, currentDistance + 1, [current[1][0], current[1][1]-1])
 
-print(visualizeDFS(maze_generator(100, 0.15), [0, 0], [99, 99]))
+                #now check if that was the goal
+                if current[1][0] == secondLocation[0] and current[1][1]-1 == secondLocation[1]:
+                    return ["Yes"]
+            #down
+            if checkValidChild(maze, current[1][0]+1, current[1][1]): 
+                #print("valid chek3")
+                childIndex = findILIndex(current[1][0]+1, current[1][1], len(maze))
+                #print(infoList[childIndex]["distance"])
+                if currentDistance + 1 < infoList[childIndex]["distance"]: #check if the current path is better than recorded
+                    infoList[childIndex]["distance"] = currentDistance + 1
+                    infoList[childIndex]["previous"] = [current[1][0], current[1][1]]
+                    addOrUpdate(fringe, currentDistance + 1, [current[1][0]+1, current[1][1]])
+
+                #now check if that was the goal
+                if current[1][0]+1 == secondLocation[0] and current[1][1] == secondLocation[1]:
+                    return ["Yes"]
+            #right
+            if checkValidChild(maze, current[1][0], current[1][1]+1):
+                #print("valid chek4")
+                childIndex = findILIndex(current[1][0], current[1][1]+1, len(maze))
+                if currentDistance + 1 < infoList[childIndex]["distance"]: #check if the current path is better than recorded
+                    infoList[childIndex]["distance"] = currentDistance + 1
+                    infoList[childIndex]["previous"] = [current[1][0], current[1][1]]
+                    addOrUpdate(fringe, currentDistance + 1, [current[1][0], current[1][1]+1])
+
+                #now check if that was the goal
+                if current[1][0] == secondLocation[0] and current[1][1]+1 == secondLocation[1]:
+                    return ["Yes"]
+            # mark currently popped from fringe node as processed
+            infoList[currentIndex]["processed"] = True
+    
+    #return empty list if it can't find the goal node from the start state
+    return []
+#print(visualizeDFS(maze_generator(100, 0.15), [0, 0], [99, 99]))
 # print(checkPathDFS(testMaze, [0, 0], [3, 3]))
 # print(findShortestBFS(testMaze, [0, 0], [3, 3]))
-
-#print(determineEuDist([0, 0], [99, 99]))
+print(findShortestA(maze_generator(100, 0.3), [0, 0], [99, 99]))
+#print(determineEuDist([99, 98], [99, 99]))
