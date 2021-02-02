@@ -160,8 +160,9 @@ def findShortestBFS(maze, firstLocation, secondLocation):
     fringe.append(first)
     visited = []
 
+    #process thru fringe
     while fringe:
-        current = fringe.popleft()
+        current = fringe.popleft() #pop leftmost = one thats been in the fringe longest (queue)
         if current[0] == secondLocation[0] and current[1] == secondLocation[1]:
             toReturn = []
             for i in current[2]:
@@ -170,10 +171,10 @@ def findShortestBFS(maze, firstLocation, secondLocation):
             return toReturn
             
         else:
-            if current not in visited:
+            if current not in visited: #check node, if not already visited then work thru its children if they're valid
                 currentFirst = current[0]
                 currentSecond = current[1]
-                if currentFirst-1 >= 0 and currentFirst-1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze):
+                if currentFirst-1 >= 0 and currentFirst-1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #up
                     temp = []
                     temp.append(currentFirst-1)
                     temp.append(currentSecond)
@@ -184,7 +185,7 @@ def findShortestBFS(maze, firstLocation, secondLocation):
                     temp[2].append([currentFirst, currentSecond])
                     if maze[temp[0]][temp[1]] == 0 and [temp[0], temp[1]] not in visited:
                         fringe.append(temp)
-                if currentFirst >= 0 and currentFirst < len(maze) and currentSecond-1 >= 0 and currentSecond-1 < len(maze):
+                if currentFirst >= 0 and currentFirst < len(maze) and currentSecond-1 >= 0 and currentSecond-1 < len(maze): #left
                     temp = []
                     temp.append(currentFirst)
                     temp.append(currentSecond-1)
@@ -195,7 +196,7 @@ def findShortestBFS(maze, firstLocation, secondLocation):
                     temp[2].append([currentFirst, currentSecond])
                     if maze[temp[0]][temp[1]] == 0 and [temp[0], temp[1]] not in visited:
                         fringe.append(temp)
-                if currentFirst+1 >= 0 and currentFirst+1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze):
+                if currentFirst+1 >= 0 and currentFirst+1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #down
                     temp = []
                     temp.append(currentFirst+1)
                     temp.append(currentSecond)
@@ -206,7 +207,7 @@ def findShortestBFS(maze, firstLocation, secondLocation):
                     temp[2].append([currentFirst, currentSecond])
                     if maze[temp[0]][temp[1]] == 0 and [temp[0], temp[1]] not in visited:
                         fringe.append(temp)
-                if currentFirst >= 0 and currentFirst < len(maze) and currentSecond+1 >= 0 and currentSecond+1 < len(maze):
+                if currentFirst >= 0 and currentFirst < len(maze) and currentSecond+1 >= 0 and currentSecond+1 < len(maze): #right
                     temp = []
                     temp.append(currentFirst)
                     temp.append(currentSecond+1)
@@ -217,7 +218,7 @@ def findShortestBFS(maze, firstLocation, secondLocation):
                     temp[2].append([currentFirst, currentSecond])
                     if maze[temp[0]][temp[1]] == 0 and [temp[0], temp[1]] not in visited:
                         fringe.append(temp)
-
+                #after done, add node to visited
                 visited.append([currentFirst, currentSecond])
     
     return -1
@@ -372,6 +373,7 @@ def addOrUpdate(fringe, newKey, coordinates):
     # print(fringe)
 
 #find shortest path via A* and heuristic
+# TODO return shortest path list
 def findShortestA(maze, firstLocation, secondLocation):
     infoList = [] #list of dictionaries for information of each potential index in matrix
     for i in range(len(maze)):
@@ -461,4 +463,4 @@ def findShortestA(maze, firstLocation, secondLocation):
 #print(findShortestBFS(testMaze, [0, 0], [3, 3]))
 #print(findShortestA(maze_generator(100, 0.3), [0, 0], [99, 99]))
 #print(determineEuDist([99, 98], [99, 99]))
-print(visualizeBFS(maze_generator(10, 0.3), [0, 0], [9, 9]))
+print(visualizeBFS(maze_generator(13, 0.3), [0, 0], [12, 12]))
