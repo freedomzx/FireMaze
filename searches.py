@@ -5,10 +5,10 @@ import pygame
 import math
 import heapq
 
-testMaze = [[0, 1, 0, 0],
-[0, 1, 1, 0],
-[0 , 0, 0, 1],
-[0, 1, 0, 0]]
+testMaze = [[0, 0, 0, 0],
+[0, 0, 1, 0],
+[0 , 0, 1, 0],
+[0, 0, 1, 0]]
 
 
 #colors
@@ -413,7 +413,16 @@ def findShortestA(maze, firstLocation, secondLocation):
 
                 #now check if that was the goal
                 if current[1][0]-1 == secondLocation[0] and current[1][1] == secondLocation[1]:
-                    return ["Yes"]
+                    toReturn = []
+                    toReturn.append([current[1][0]-1, current[1][1]])
+                    backtrackCurrent = infoList[childIndex]["previous"]
+                    while True:
+                        toReturn.insert(0, backtrackCurrent)
+                        if backtrackCurrent == firstLocation:
+                            break
+                        backtrackCurrent = infoList[findILIndex(backtrackCurrent[0], backtrackCurrent[1], len(maze))]["previous"]
+
+                    return toReturn
             #left
             if checkValidChild(maze, current[1][0], current[1][1]-1): 
                 #print("valid chek2")
@@ -425,7 +434,16 @@ def findShortestA(maze, firstLocation, secondLocation):
 
                 #now check if that was the goal
                 if current[1][0] == secondLocation[0] and current[1][1]-1 == secondLocation[1]:
-                    return ["Yes"]
+                    toReturn = []
+                    toReturn.append([current[1][0], current[1][1]-1])
+                    backtrackCurrent = infoList[childIndex]["previous"]
+                    while True:
+                        toReturn.insert(0, backtrackCurrent)
+                        if backtrackCurrent == firstLocation:
+                            break
+                        backtrackCurrent = infoList[findILIndex(backtrackCurrent[0], backtrackCurrent[1], len(maze))]["previous"]
+
+                    return toReturn
             #down
             if checkValidChild(maze, current[1][0]+1, current[1][1]): 
                 #print("valid chek3")
@@ -438,7 +456,16 @@ def findShortestA(maze, firstLocation, secondLocation):
 
                 #now check if that was the goal
                 if current[1][0]+1 == secondLocation[0] and current[1][1] == secondLocation[1]:
-                    return ["Yes"]
+                    toReturn = []
+                    toReturn.append([current[1][0]+1, current[1][1]])
+                    backtrackCurrent = infoList[childIndex]["previous"]
+                    while True:
+                        toReturn.insert(0, backtrackCurrent)
+                        if backtrackCurrent == firstLocation:
+                            break
+                        backtrackCurrent = infoList[findILIndex(backtrackCurrent[0], backtrackCurrent[1], len(maze))]["previous"]
+
+                    return toReturn
             #right
             if checkValidChild(maze, current[1][0], current[1][1]+1):
                 #print("valid chek4")
@@ -450,7 +477,16 @@ def findShortestA(maze, firstLocation, secondLocation):
 
                 #now check if that was the goal
                 if current[1][0] == secondLocation[0] and current[1][1]+1 == secondLocation[1]:
-                    return ["Yes"]
+                    toReturn = []
+                    toReturn.append([current[1][0], current[1][1]+1])
+                    backtrackCurrent = infoList[childIndex]["previous"]
+                    while True:
+                        toReturn.insert(0, backtrackCurrent)
+                        if backtrackCurrent == firstLocation:
+                            break
+                        backtrackCurrent = infoList[findILIndex(backtrackCurrent[0], backtrackCurrent[1], len(maze))]["previous"]
+
+                    return toReturn
             # mark currently popped from fringe node as processed
             infoList[currentIndex]["processed"] = True
     
@@ -461,6 +497,6 @@ def findShortestA(maze, firstLocation, secondLocation):
 #print(visualizeDFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
 #print(checkPathDFS(testMaze, [0, 0], [3, 3]))
 #print(findShortestBFS(testMaze, [0, 0], [3, 3]))
-#print(findShortestA(maze_generator(100, 0.3), [0, 0], [99, 99]))
+print(findShortestA(testMaze, [0, 0], [3, 3]))
 #print(determineEuDist([99, 98], [99, 99]))
-print(visualizeBFS(maze_generator(13, 0.3), [0, 0], [12, 12]))
+#print(visualizeBFS(maze_generator(13, 0.3), [0, 0], [12, 12]))
