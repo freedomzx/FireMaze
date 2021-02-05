@@ -31,8 +31,8 @@ def checkPathDFS(maze, firstLocation, secondLocation):
     while fringe:
         current = fringe.pop()
         if current[0] == secondLocation[0] and current[1] == secondLocation[1]: #if found goal then get out of here
-            print(maze)
             return True #found a path
+
         else:
             if current not in visited:
                 currentFirst = current[0]
@@ -95,7 +95,8 @@ def visualizeDFS(maze, firstLocation, secondLocation):
                             (margin + height) * i + margin,
                             width,
                             height])
-            pygame.display.flip()
+            
+    pygame.display.flip()
 
     success = False
     done = False
@@ -154,6 +155,7 @@ def visualizeDFS(maze, firstLocation, secondLocation):
                                 height])
                     pygame.display.flip()
                     visited.insert(0, current)
+                    
     pygame.quit()
     return success
 
@@ -253,7 +255,8 @@ def visualizeBFS(maze, firstLocation, secondLocation):
                             (margin + height) * i + margin,
                             width,
                             height])
-            pygame.display.flip()
+    
+    pygame.display.flip()
 
     success = [False, []]
     done = False
@@ -340,7 +343,6 @@ def visualizeBFS(maze, firstLocation, secondLocation):
             
     pygame.quit()
     return success
-
 
 #heuristic that guesses distance based on euclidean dist formula
 def determineEuDist(firstLocation, secondLocation):
@@ -471,7 +473,8 @@ def visualizeShortestA(maze, firstLocation, secondLocation):
                             (margin + height) * i + margin,
                             width,
                             height])
-            pygame.display.flip()
+    
+    pygame.display.flip()
 
     success = [False, []]
     done = False
@@ -579,11 +582,11 @@ testMaze = [[0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0]]
 
 #print(checkPathDFS(testMaze, [0, 0], [3, 3]))
-#print(visualizeDFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
+print(visualizeDFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
 #print(findShortestBFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
 #print(visualizeBFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
 #print(findShortestA(testMaze, [0, 0], [4, 4]))
-print(visualizeShortestA(maze_generator(100, 0.3), [0, 0], [99, 99]))
+#print(visualizeShortestA(maze_generator(100, 0.3), [0, 0], [99, 99]))
 
 # print(determineEuDist([1, 1], [4, 4]))
 # print(determineEuDist([0, 2], [4, 4]))
