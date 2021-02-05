@@ -492,10 +492,173 @@ def findShortestA(maze, firstLocation, secondLocation):
     #return empty list if it can't find the goal node from the start state
     return []
 
+#visualize BFS via pygame
+def visualizeShortestA(maze, firstLocation, secondLocation):
+    dimen = len(maze)
+    width = 6
+    height = 6
+    margin = 0
+
+    pygame.init()
+    screen = pygame.display.set_mode([600, 600])
+    pygame.display.set_caption("DFS Visualization")
+    screen.fill(black)
+    clock = pygame.time.Clock()
+
+    for i in range(dimen):
+        for j in range(dimen):
+            color = white
+            if i == firstLocation[0] and j == firstLocation[1]:
+                color = green #color start green
+            elif i == secondLocation[0] and j == secondLocation[1]:
+                color = red #color goal red
+            elif maze[i][j] == 1:
+                color = black
+            pygame.draw.rect(screen,
+                            color,
+                            [(margin + width) * j + margin,
+                            (margin + height) * i + margin,
+                            width,
+                            height])
+            pygame.display.flip()
+
+    success = [False, []]
+    done = False
+    while not done:
+        for event in pygame.event.get(): 
+            if event.type == pygame.QUIT:  
+                done = True 
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                done = True
+        infoList = [] #list of dictionaries for information of each potential index in matrix
+        for i in range(len(maze)):
+            for j in range(len(maze)):
+                toAdd = {} #dictionary of properties
+                toAdd["distance"] = 999999 # from root
+                toAdd["processed"] = False #processed in while loop or not
+                toAdd["previous"] = [-1, -1] #previous coordinates
+                toAdd["estimated_distance"] = determineEuDist([i, j], [secondLocation[0], secondLocation[1]]) #heuristic
+                infoList.append(toAdd)
+
+        #set the root's distance to itself to 0 and set the previous node for it to itself
+        rootIndex = findILIndex(firstLocation[0], firstLocation[1], len(maze))
+        infoList[rootIndex]["distance"] = 0
+        infoList[rootIndex]["previous"] = [firstLocation[0], secondLocation[0]]
+        
+        #create fringe and push root onto it
+        #fringe priority is estimated distance to the goal node
+        fringe = []
+        heapq.heappush(fringe, [infoList[rootIndex]["estimated_distance"], [firstLocation[0], firstLocation[1]]])
+
+        #work and process child nodes thru fringe until either fringe is empty or goal is reached
+        while fringe:
+            current = heapq.heappop(fringe) #current will look like [distance, [coord1, coord2]]
+            currentIndex = findILIndex(current[1][0], current[1][1], len(maze))
+            currentDistance = infoList[currentIndex]["distance"]
+            if not infoList[currentIndex]["processed"]:
+                #check 4 potential children
+                #up
+                if checkValidChild(maze, current[1][0]-1, current[1][1]):
+                    #print("valid chek1")
+                    childIndex = findILIndex(current[1][0]-1, current[1][1], len(maze))
+                    if currentDistance + 1 < infoList[childIndex]["distance"]: #check if the current path is better than recorded
+                        infoList[childIndex]["distance"] = currentDistance + 1
+                        infoList[childIndex]["previous"] = [current[1][0], current[1][1]]
+                        addOrUpdate(fringe, currentDistance + 1, [current[1][0]-1, current[1][1]])
+
+                    #now check if that was the goal
+                    if current[1][0]-1 == secondLocation[0] and current[1][1] == secondLocation[1]:
+                        toReturn = []
+                        toReturn.append([current[1][0]-1, current[1][1]])
+                        backtrackCurrent = infoList[childIndex]["previous"]
+                        while True:
+                            toReturn.insert(0, backtrackCurrent)
+                            if backtrackCurrent == firstLocation:
+                                break
+                            backtrackCurrent = infoList[findILIndex(backtrackCurrent[0], backtrackCurrent[1], len(maze))]["previous"]
+
+                        break
+                #left
+                if checkValidChild(maze, current[1][0], current[1][1]-1): 
+                    #print("valid chek2")
+                    childIndex = findILIndex(current[1][0], current[1][1]-1, len(maze))
+                    if currentDistance + 1 < infoList[childIndex]["distance"]: #check if the current path is better than recorded
+                        infoList[childIndex]["distance"] = currentDistance + 1
+                        infoList[childIndex]["previous"] = [current[1][0], current[1][1]]
+                        addOrUpdate(fringe, currentDistance + 1, [current[1][0], current[1][1]-1])
+
+                    #now check if that was the goal
+                    if current[1][0] == secondLocation[0] and current[1][1]-1 == secondLocation[1]:
+                        toReturn = []
+                        toReturn.append([current[1][0], current[1][1]-1])
+                        backtrackCurrent = infoList[childIndex]["previous"]
+                        while True:
+                            toReturn.insert(0, backtrackCurrent)
+                            if backtrackCurrent == firstLocation:
+                                break
+                            backtrackCurrent = infoList[findILIndex(backtrackCurrent[0], backtrackCurrent[1], len(maze))]["previous"]
+
+                        break
+                #down
+                if checkValidChild(maze, current[1][0]+1, current[1][1]): 
+                    #print("valid chek3")
+                    childIndex = findILIndex(current[1][0]+1, current[1][1], len(maze))
+                    #print(infoList[childIndex]["distance"])
+                    if currentDistance + 1 < infoList[childIndex]["distance"]: #check if the current path is better than recorded
+                        infoList[childIndex]["distance"] = currentDistance + 1
+                        infoList[childIndex]["previous"] = [current[1][0], current[1][1]]
+                        addOrUpdate(fringe, currentDistance + 1, [current[1][0]+1, current[1][1]])
+
+                    #now check if that was the goal
+                    if current[1][0]+1 == secondLocation[0] and current[1][1] == secondLocation[1]:
+                        toReturn = []
+                        toReturn.append([current[1][0]+1, current[1][1]])
+                        backtrackCurrent = infoList[childIndex]["previous"]
+                        while True:
+                            toReturn.insert(0, backtrackCurrent)
+                            if backtrackCurrent == firstLocation:
+                                break
+                            backtrackCurrent = infoList[findILIndex(backtrackCurrent[0], backtrackCurrent[1], len(maze))]["previous"]
+
+                        break
+                #right
+                if checkValidChild(maze, current[1][0], current[1][1]+1):
+                    #print("valid chek4")
+                    childIndex = findILIndex(current[1][0], current[1][1]+1, len(maze))
+                    if currentDistance + 1 < infoList[childIndex]["distance"]: #check if the current path is better than recorded
+                        infoList[childIndex]["distance"] = currentDistance + 1
+                        infoList[childIndex]["previous"] = [current[1][0], current[1][1]]
+                        addOrUpdate(fringe, currentDistance + 1, [current[1][0], current[1][1]+1])
+
+                    #now check if that was the goal
+                    if current[1][0] == secondLocation[0] and current[1][1]+1 == secondLocation[1]:
+                        toReturn = []
+                        toReturn.append([current[1][0], current[1][1]+1])
+                        backtrackCurrent = infoList[childIndex]["previous"]
+                        while True:
+                            toReturn.insert(0, backtrackCurrent)
+                            if backtrackCurrent == firstLocation:
+                                break
+                            backtrackCurrent = infoList[findILIndex(backtrackCurrent[0], backtrackCurrent[1], len(maze))]["previous"]
+
+                        break
+                # mark currently popped from fringe node as processed
+                infoList[currentIndex]["processed"] = True
+
+                maze[current[1][0]][current[1][1]] = 3
+                color = blue
+                pygame.draw.rect(screen, color, [(margin + width) * current[1][1] + margin, (margin + height) * current[1][0] + margin, width, height])
+                pygame.display.flip()
+        #return empty list if it can't find the goal node from the start state
+        return []
+    pygame.quit()
+    return success
+
 
 #print(visualizeDFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
 #print(checkPathDFS(testMaze, [0, 0], [3, 3]))
 #print(findShortestBFS(testMaze, [0, 0], [3, 3]))
-print(findShortestA(testMaze, [0, 0], [3, 3]))
+#print(findShortestA(maze_generator(50, 0.2), [0, 0], [49, 49]))
+print(visualizeShortestA(maze_generator(50, 0.2), [0, 0], [49, 49]))
 #print(determineEuDist([99, 98], [99, 99]))
 #print(visualizeBFS(maze_generator(13, 0.3), [0, 0], [12, 12]))
