@@ -373,7 +373,6 @@ def addOrUpdate(fringe, newKey, coordinates):
     # print(fringe)
 
 #find shortest path via A* and heuristic
-# TODO return shortest path list
 def findShortestA(maze, firstLocation, secondLocation):
     infoList = [] #list of dictionaries for information of each potential index in matrix
     for i in range(len(maze)):
