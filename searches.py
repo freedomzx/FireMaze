@@ -581,9 +581,9 @@ testMaze = [[0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0]]
 
-#print(checkPathDFS(testMaze, [0, 0], [3, 3]))
-print(visualizeDFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
-#print(findShortestBFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
+#print(checkPathDFS(testMaze, [0, 0], [3, 3])) #800
+#print(visualizeDFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
+#print(findShortestBFS(maze_generator(225, 0.3), [0, 0], [224, 224])) #230 max
 #print(visualizeBFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
 #print(findShortestA(testMaze, [0, 0], [4, 4]))
 #print(visualizeShortestA(maze_generator(100, 0.3), [0, 0], [99, 99]))
