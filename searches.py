@@ -558,11 +558,11 @@ testMaze = [[0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0]]
 
-#print(checkPathDFS(maze_generator(1000, 0.3), [0, 0], [999, 999]))
+#print(checkPathDFS(maze_generator(1750, 0.3), [0, 0], [1749, 1749]))
 #print(visualizeDFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
-#print(findShortestBFS(maze_generator(600, 0.3), [0, 0], [599, 599])) #230 max
+#print(findShortestBFS(maze_generator(1000, 0.3), [0, 0], [999, 999]))
 #print(visualizeBFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
-print(findShortestA(maze_generator(500, 0.3), [0, 0], [499, 499]))
+#print(findShortestA(maze_generator(500, 0.3), [0, 0], [499, 499]))
 #print(visualizeShortestA(maze_generator(600, 0.3), [0, 0], [99, 99]))
 
 # print(determineEuDist([1, 1], [4, 4]))
