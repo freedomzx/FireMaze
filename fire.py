@@ -2,6 +2,7 @@ from searches import *
 from mazeGenerator import maze_generator
 import random
 
+#advance fire in maze via algorithm given in pdf
 def advance_fire(maze, q):
     for i in range(len(maze)):
         for j in range(len(maze[0])):
@@ -28,7 +29,7 @@ def advance_fire(maze, q):
                 probability = 1 - pow((1-q), numOfFireChildren)
                 probability *= 100
                 if random.randint(1, 100) <= probability:
-                    maze[i][j] = 3
+                    maze[i][j] = 3  
 
 def strategyOne(maze):
     pass
