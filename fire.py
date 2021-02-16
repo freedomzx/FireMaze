@@ -7,29 +7,29 @@ def advance_fire(maze, q):
     for i in range(len(maze)):
         for j in range(len(maze[0])):
             #check if not obstacle and not on fire
-            if maze[i][j] != 3 and maze[i][j] != 1:
+            if maze[i][j] != 5 and maze[i][j] != 1:
                 #check nu mof neighbors on fire
                 numOfFireChildren = 0
                 if checkValidChild(maze, i-1, j):
-                    if maze[i-1][j] == 3:
+                    if maze[i-1][j] == 5:
                         numOfFireChildren += 1
                 
                 if checkValidChild(maze, i, j-1):
-                    if maze[i][j-1] == 3:
+                    if maze[i][j-1] == 5:
                         numOfFireChildren += 1
 
                 if checkValidChild(maze, i+1, j):
-                    if maze[i+1][j] == 3:
+                    if maze[i+1][j] == 5:
                         numOfFireChildren += 1
 
                 if checkValidChild(maze, i, j+1):
-                    if maze[i][j+1] == 3:
+                    if maze[i][j+1] == 5:
                         numOfFireChildren += 1
 
                 probability = 1 - pow((1-q), numOfFireChildren)
                 probability *= 100
                 if random.randint(1, 100) <= probability:
-                    maze[i][j] = 3
+                    maze[i][j] = 5
 
 def start_fire(maze): #start fire with assumption that topleft + bottomright are start/goal
     row = -1
@@ -39,7 +39,7 @@ def start_fire(maze): #start fire with assumption that topleft + bottomright are
     while (column == -1 or column == 0 or column == len(maze)-1):
         column = random.randint(0, len(maze)-1)
 
-    maze[row][column] = 3
+    maze[row][column] = 5
 
 def strategyOne(maze):
     pass
@@ -57,5 +57,10 @@ testMaze = [[0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0]]
 
 start_fire(testMaze)
-
+print(testMaze)
+advance_fire(testMaze, 0.3)
+print(testMaze)
+advance_fire(testMaze, 0.3)
+print(testMaze)
+advance_fire(testMaze, 0.3)
 print(testMaze)
