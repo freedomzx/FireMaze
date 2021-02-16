@@ -558,7 +558,7 @@ testMaze = [[0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0]]
 
-#print(checkPathDFS(maze_generator(1750, 0.3), [0, 0], [1749, 1749]))
+#print(checkPathDFS(maze_generator(1750, 0.4), [0, 0], [1749, 1749]))
 #print(visualizeDFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
 #print(findShortestBFS(maze_generator(1000, 0.3), [0, 0], [999, 999]))
 #print(visualizeBFS(maze_generator(100, 0.3), [0, 0], [99, 99]))

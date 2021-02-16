@@ -29,7 +29,17 @@ def advance_fire(maze, q):
                 probability = 1 - pow((1-q), numOfFireChildren)
                 probability *= 100
                 if random.randint(1, 100) <= probability:
-                    maze[i][j] = 3  
+                    maze[i][j] = 3
+
+def start_fire(maze): #start fire with assumption that topleft + bottomright are start/goal
+    row = -1
+    column = -1
+    while (row == -1 or row == 0 or row == len(maze)-1):
+        row = random.randint(0, len(maze)-1)
+    while (column == -1 or column == 0 or column == len(maze)-1):
+        column = random.randint(0, len(maze)-1)
+
+    maze[row][column] = 3
 
 def strategyOne(maze):
     pass
@@ -39,3 +49,13 @@ def strategyTwo(maze):
 
 def strategyThree(maze):
     pass
+
+testMaze = [[0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0],
+[0 , 0, 0, 0, 0],
+[0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0]]
+
+start_fire(testMaze)
+
+print(testMaze)
