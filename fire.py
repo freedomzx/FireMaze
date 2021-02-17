@@ -51,6 +51,8 @@ def strategyOne(maze, q):
         curr = shortestPath[i]
         if maze[current[0]][current[1]] == 5:
             return -1
+        if maze[current[0]][current[1]] == maze[len(maze)-1][len(maze)-1]:
+            return 200
         advance_fire(maze, q)
 
 
