@@ -2,6 +2,7 @@ from searches import *
 from mazeGenerator import maze_generator
 import random
 import pygame
+from searches import checkValidChild
 
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -54,13 +55,15 @@ def strategyOne(maze, q):
     curr = [0, 0]
     shortestPath = findShortestBFS(maze, curr, [len(maze)-1, len(maze)-1])
     if shortestPath[0] == 'No path': 
-        return -2
+        print('No Path')
+        return False
     for i in range(len(shortestPath)):
         curr = shortestPath[i]
         if maze[curr[0]][curr[1]] == 5:
-            return -1
+            print('Died in a fire')
+            return False
         if maze[curr[0]][curr[1]] == maze[len(maze)-1][len(maze)-1]:
-            return 200
+            return True
         advance_fire(maze, q)
 
 
@@ -131,13 +134,15 @@ def visualizeStrategyOne(maze, q):
         shortestPath = findShortestBFS(maze, curr, [len(maze)-1, len(maze)-1])
         if shortestPath[0] == 'No path': 
             print(-2)
+            return False
         for i in range(len(shortestPath)):
             curr = shortestPath[i]
             print(curr)
             if maze[curr[0]][curr[1]] == 5:
-                print('-1')
+                return False
             if maze[curr[0]][curr[1]] == maze[len(maze)-1][len(maze)-1]:
-                print('200')
+
+                return True
             advance_fire(maze, q)
             maze[curr[0]][curr[1]] = 3
             color = blue
@@ -238,19 +243,21 @@ def visualizeStrategyTwo(maze, q):
     return success
         
 
-testMaze = [[0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0],
-[0 , 0, 0, 0, 0],
-[0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0]]
+# testMaze = [[0, 0, 0, 0, 0],
+# [0, 0, 0, 0, 0],
+# [0 , 0, 0, 0, 0],
+# [0, 0, 0, 0, 0],
+# [0, 0, 0, 0, 0]]
 
-start_fire(testMaze)
+#start_fire(testMaze)
 #print(testMaze)
-advance_fire(testMaze, 0.3)
+#advance_fire(testMaze, 0.3)
 #print(testMaze)
-advance_fire(testMaze, 0.3)
+#advance_fire(testMaze, 0.3)
 #print(testMaze)
-advance_fire(testMaze, 0.3)
+#advance_fire(testMaze, 0.3)
 #print(testMaze)
-print(visualizeStrategyOne(testMaze, 0.1))
-advance_fire(testMaze, 0.1)
+#print(findProbsStratOne())
+#advance_fire(maze_generator(100, 0.3), 0.1)
+#print(visualizeStrategyTwo(maze_generator(100, 0.3), 0.3))
+#advance_fire(maze_generator(100, 0.3), 0.3)

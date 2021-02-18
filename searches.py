@@ -167,6 +167,7 @@ def findShortestBFS(maze, firstLocation, secondLocation):
 
     parentTracker[0]["previous"] = firstLocation
     #process thru fringe
+    nodes = 0
     while fringe:
         current = fringe.popleft() #pop leftmost = one thats been in the fringe longest (queue)
         if current[0] == secondLocation[0] and current[1] == secondLocation[1]:
@@ -180,7 +181,7 @@ def findShortestBFS(maze, firstLocation, secondLocation):
                     break
                 backtrackCurrent = parentTracker[findILIndex(backtrackCurrent[0], backtrackCurrent[1], len(maze))]["previous"]
 
-            return toReturn
+            return toReturn, nodes
             
         else:
             if current not in visited: #check node, if not already visited then work thru its children if they're valid
@@ -208,9 +209,9 @@ def findShortestBFS(maze, firstLocation, secondLocation):
                         parentTracker[findILIndex(currentFirst, currentSecond+1, len(maze))]["previous"] = [currentFirst, currentSecond]
                 #after done, add node to visited
                 visited.add((currentFirst, currentSecond))
+                nodes += 1
                 maze[currentFirst][currentSecond] = 3
-    
-    return ["No path"]
+    return ["No path"], 0
 
 #visualize BFS via pygame
 def visualizeBFS(maze, firstLocation, secondLocation):
