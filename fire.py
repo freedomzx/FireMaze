@@ -49,6 +49,7 @@ def start_fire(maze): #start fire with assumption that topleft + bottomright are
     maze[row][column] = 5
 
 def strategyOne(maze, q):
+    start_fire(maze)
     shortestPath = []
     curr = [0, 0]
     shortestPath = findShortestBFS(maze, curr, [len(maze)-1, len(maze)-1])
@@ -56,14 +57,15 @@ def strategyOne(maze, q):
         return -2
     for i in range(len(shortestPath)):
         curr = shortestPath[i]
-        if maze[current[0]][current[1]] == 5:
+        if maze[curr[0]][curr[1]] == 5:
             return -1
-        if maze[current[0]][current[1]] == maze[len(maze)-1][len(maze)-1]:
+        if maze[curr[0]][curr[1]] == maze[len(maze)-1][len(maze)-1]:
             return 200
         advance_fire(maze, q)
 
 
 def strategyTwo(maze, q):
+    start_fire(maze)
     #start from topleft
     current = [0, 0]
     
@@ -74,11 +76,12 @@ def strategyTwo(maze, q):
         if shortestPath[0] == 'No path':
             #no path from current node to goal
             return -2
-        advance_fire(maze, q)
         current = shortestPath[1]
         if current == [len(maze)-1, len(maze)-1]:
             #found it, return good
             return 200
+        advance_fire(maze, q)
+        
 
 def strategyThree(maze):
     pass
@@ -94,6 +97,7 @@ def visualizeStrategyOne(maze, q):
     pygame.display.set_caption("DFS Visualization")
     screen.fill(black)
     clock = pygame.time.Clock()
+    start_fire(maze)
 
     for i in range(dimen):
         for j in range(dimen):
