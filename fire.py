@@ -3,6 +3,12 @@ from mazeGenerator import maze_generator
 import random
 import pygame
 
+testMaze = [[0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0],
+[0 , 0, 0, 0, 0],
+[0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0]]
+
 black = (0, 0, 0)
 white = (255, 255, 255)
 green = (0, 255, 0)
@@ -37,6 +43,7 @@ def advance_fire(maze, q):
                 probability *= 100
                 if random.randint(1, 100) <= probability:
                     maze[i][j] = 5
+                    #print("fire spread at [{}][{}]".format(i, j))
 
 def start_fire(maze): #start fire with assumption that topleft + bottomright are start/goal
     row = -1
@@ -47,6 +54,7 @@ def start_fire(maze): #start fire with assumption that topleft + bottomright are
         column = random.randint(0, len(maze)-1)
 
     maze[row][column] = 5
+    print("fire started at [{}][{}]".format(row, column))
 
 def strategyOne(maze, q):
     start_fire(maze)
@@ -58,6 +66,7 @@ def strategyOne(maze, q):
     for i in range(len(shortestPath)):
         curr = shortestPath[i]
         if maze[curr[0]][curr[1]] == 5:
+            #print("died in a fire")
             return -1
         if maze[curr[0]][curr[1]] == maze[len(maze)-1][len(maze)-1]:
             return 200
@@ -68,23 +77,37 @@ def strategyTwo(maze, q):
     start_fire(maze)
     #start from topleft
     current = [0, 0]
-    
+    if checkPathDFS(maze, current, [len(maze)-1, len(maze)-1]) == False:
+        print("no initial path")
+        return -2
     #follow a computed shortest path step by step, recompute after each step
-    shortestPath = []
     while True:
         shortestPath = findShortestBFS(maze, current, [len(maze)-1, len(maze)-1])
         if shortestPath[0] == 'No path':
-            #no path from current node to goal
-            return -2
+            print("no where to go " + str(current))
+            return -1
         current = shortestPath[1]
-        if current == [len(maze)-1, len(maze)-1]:
-            #found it, return good
+        for i in range(len(maze)):
+            for j in range(len(maze)):
+                if maze[i][j] == 3:
+                    maze[i][j] = 0
+        
+        if maze[current[0]][current[1]] == 5:
+            print("died tragically in a fire")
+            return -1
+        elif current == [len(maze)-1, len(maze)-1]:
+            print("found goal")
             return 200
         advance_fire(maze, q)
-        
 
-def strategyThree(maze):
-    pass
+    return 200
+
+def printmaze(maze):
+    for i in range(len(maze)):
+        for j in range(len(maze)):
+            print(maze[i][j] + " ")
+        print("\n")
+
 
 def visualizeStrategyOne(maze, q):
     dimen = len(maze)
@@ -238,19 +261,11 @@ def visualizeStrategyTwo(maze, q):
     return success
         
 
-testMaze = [[0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0],
-[0 , 0, 0, 0, 0],
-[0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0]]
-
-start_fire(testMaze)
-#print(testMaze)
-advance_fire(testMaze, 0.3)
-#print(testMaze)
-advance_fire(testMaze, 0.3)
-#print(testMaze)
-advance_fire(testMaze, 0.3)
-#print(testMaze)
-print(visualizeStrategyOne(testMaze, 0.1))
-advance_fire(testMaze, 0.1)
+testMaze = [[0, 1, 0, 1, 1],
+            [0, 0, 0, 0, 1],
+            [0, 0, 1, 0, 0],
+            [1, 0, 0, 1, 0],
+            [0, 1, 0, 0, 0]]
+#print(checkPathDFS(testMaze, [1, 0], [4, 4]))
+#print(findShortestBFS(testMaze, [0, 0], [4, 4]))
+print(strategyTwo(maze_generator(100, 0.3), 0.3))
