@@ -54,7 +54,7 @@ def start_fire(maze): #start fire with assumption that topleft + bottomright are
         column = random.randint(0, len(maze)-1)
 
     maze[row][column] = 5
-    print("fire started at [{}][{}]".format(row, column))
+    #print("fire started at [{}][{}]".format(row, column))
 
 def strategyOne(maze, q):
     start_fire(maze)
@@ -78,13 +78,13 @@ def strategyTwo(maze, q):
     #start from topleft
     current = [0, 0]
     if checkPathDFS(maze, current, [len(maze)-1, len(maze)-1]) == False:
-        print("no initial path")
+        #print("no initial path")
         return -2
     #follow a computed shortest path step by step, recompute after each step
     while True:
         shortestPath = findShortestBFS(maze, current, [len(maze)-1, len(maze)-1])
         if shortestPath[0] == 'No path':
-            print("no where to go " + str(current))
+            #print("no where to go " + str(current))
             return -1
         current = shortestPath[1]
         for i in range(len(maze)):
@@ -93,20 +93,77 @@ def strategyTwo(maze, q):
                     maze[i][j] = 0
         
         if maze[current[0]][current[1]] == 5:
-            print("died tragically in a fire")
+            #print("died tragically in a fire")
             return -1
         elif current == [len(maze)-1, len(maze)-1]:
-            print("found goal")
+            #print("found goal")
             return 200
         advance_fire(maze, q)
 
     return 200
 
-def printmaze(maze):
+#fire safe version of BFS using safety number (max 2)
+def safeBFS(maze, q, safety):
+    fringe = deque() #use a queue for BFS
+    first = (firstLocation[0], firstLocation[1])
+    fringe.append(first)
+    visited = set()
+    parentTracker = []
     for i in range(len(maze)):
         for j in range(len(maze)):
-            print(maze[i][j] + " ")
-        print("\n")
+            toAdd = {}
+            toAdd["previous"] = []
+            parentTracker.append(toAdd)
+
+    parentTracker[0]["previous"] = firstLocation
+    #process thru fringe
+    while fringe:
+        current = fringe.popleft() #pop leftmost = one thats been in the fringe longest (queue)
+        if current[0] == secondLocation[0] and current[1] == secondLocation[1]:
+            toReturn = []
+            toReturn.append([current[0], current[1]])
+            curIndex = findILIndex(current[0], current[1], len(maze))
+            backtrackCurrent = parentTracker[curIndex]["previous"]
+            while True:
+                toReturn.insert(0, backtrackCurrent)
+                if backtrackCurrent == firstLocation:
+                    break
+                backtrackCurrent = parentTracker[findILIndex(backtrackCurrent[0], backtrackCurrent[1], len(maze))]["previous"]
+
+            return toReturn
+            
+        else:
+            if current not in visited: #check node, if not already visited then work thru its children if they're valid
+                currentFirst = current[0]
+                currentSecond = current[1]
+                if currentFirst-1 >= 0 and currentFirst-1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #up
+                    if maze[currentFirst-1][currentSecond] == 0 and maze[currentFirst-1][currentSecond] not in visited:
+                        temp = (currentFirst-1, currentSecond)
+                        fringe.append(temp)
+                        parentTracker[findILIndex(currentFirst-1, currentSecond, len(maze))]["previous"] = [currentFirst, currentSecond]
+                if currentFirst >= 0 and currentFirst < len(maze) and currentSecond-1 >= 0 and currentSecond-1 < len(maze): #left
+                    if maze[currentFirst][currentSecond-1] == 0 and maze[currentFirst][currentSecond-1] not in visited:
+                        temp = (currentFirst, currentSecond-1)
+                        fringe.append(temp)
+                        parentTracker[findILIndex(currentFirst, currentSecond-1, len(maze))]["previous"] = [currentFirst, currentSecond]
+                if currentFirst+1 >= 0 and currentFirst+1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #down
+                    if maze[currentFirst+1][currentSecond] == 0 and maze[currentFirst+1][currentSecond] not in visited:
+                        temp = (currentFirst+1, currentSecond)
+                        fringe.append(temp)
+                        parentTracker[findILIndex(currentFirst+1, currentSecond, len(maze))]["previous"] = [currentFirst, currentSecond]
+                if currentFirst >= 0 and currentFirst < len(maze) and currentSecond+1 >= 0 and currentSecond+1 < len(maze): #right
+                    if maze[currentFirst][currentSecond+1] == 0 and maze[currentFirst][currentSecond+1] not in visited:
+                        temp = (currentFirst, currentSecond+1)
+                        fringe.append(temp)
+                        parentTracker[findILIndex(currentFirst, currentSecond+1, len(maze))]["previous"] = [currentFirst, currentSecond]
+                #after done, add node to visited
+                visited.add((currentFirst, currentSecond))
+                maze[currentFirst][currentSecond] = 3
+    
+    return ["No path"]
+
+def strategyThree(maze, q):
+    
 
 
 def visualizeStrategyOne(maze, q):
@@ -268,4 +325,5 @@ testMaze = [[0, 1, 0, 1, 1],
             [0, 1, 0, 0, 0]]
 #print(checkPathDFS(testMaze, [1, 0], [4, 4]))
 #print(findShortestBFS(testMaze, [0, 0], [4, 4]))
-print(strategyTwo(maze_generator(100, 0.3), 0.3))
+#print(strategyTwo(maze_generator(100, 0.3), 0.3))
+#print(strategyOne(maze_generator(150, 0.3), 0.05))
