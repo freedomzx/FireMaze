@@ -77,7 +77,7 @@ def strategyOne(maze, q):
         if maze[curr[0]][curr[1]] == 5:
             #print("died in a fire")
             return -1
-        if maze[curr[0]][curr[1]] == maze[len(maze)-1][len(maze)-1]:
+        if [curr[0], curr[1]] == [len(maze)-1, len(maze)-1]:
             return 200
         advance_fire(maze, q)
 
@@ -227,8 +227,8 @@ testMaze = [[0, 1, 0, 1, 1],
             [0, 1, 0, 0, 0]]
 #print(checkPathDFS(testMaze, [1, 0], [4, 4]))
 #print(findShortestBFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
-#print(strategyTwo(maze_generator(100, 0.2), 0.2))
-#print(strategyOne(maze_generator(150, 0.3), 0.05))
+print(strategyTwo(maze_generator(25, 0.2), 0.2))
+print(strategyOne(maze_generator(25, 0.3), 0.05))
 #print(findShortestBFS(testMaze, [0, 0], [4, 4]))
 # print(safeBFS(testMaze, [0, 0], [4, 4], 3))
-#print(strategyThree(maze_generator(50, 0.2), 0.2, 2))
+print(strategyThree(maze_generator(25, 0.2), 0.2, 2))
