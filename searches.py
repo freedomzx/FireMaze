@@ -187,28 +187,28 @@ def findShortestBFS(maze, firstLocation, secondLocation):
                 currentFirst = current[0]
                 currentSecond = current[1]
                 if currentFirst-1 >= 0 and currentFirst-1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #up
-                    if maze[currentFirst-1][currentSecond] == 0 and maze[currentFirst-1][currentSecond] not in visited:
+                    if (currentFirst-1,currentSecond) not in visited and maze[currentFirst-1][currentSecond] == 0:
                         temp = (currentFirst-1, currentSecond)
                         fringe.append(temp)
                         parentTracker[findILIndex(currentFirst-1, currentSecond, len(maze))]["previous"] = [currentFirst, currentSecond]
                 if currentFirst >= 0 and currentFirst < len(maze) and currentSecond-1 >= 0 and currentSecond-1 < len(maze): #left
-                    if maze[currentFirst][currentSecond-1] == 0 and maze[currentFirst][currentSecond-1] not in visited:
+                    if (currentFirst, currentSecond-1) not in visited and maze[currentFirst][currentSecond-1] == 0:
                         temp = (currentFirst, currentSecond-1)
                         fringe.append(temp)
                         parentTracker[findILIndex(currentFirst, currentSecond-1, len(maze))]["previous"] = [currentFirst, currentSecond]
                 if currentFirst+1 >= 0 and currentFirst+1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #down
-                    if maze[currentFirst+1][currentSecond] == 0 and maze[currentFirst+1][currentSecond] not in visited:
+                    if (currentFirst+1, currentSecond) not in visited and maze[currentFirst+1][currentSecond] == 0:
                         temp = (currentFirst+1, currentSecond)
                         fringe.append(temp)
                         parentTracker[findILIndex(currentFirst+1, currentSecond, len(maze))]["previous"] = [currentFirst, currentSecond]
                 if currentFirst >= 0 and currentFirst < len(maze) and currentSecond+1 >= 0 and currentSecond+1 < len(maze): #right
-                    if maze[currentFirst][currentSecond+1] == 0 and maze[currentFirst][currentSecond+1] not in visited:
+                    if (currentFirst, currentSecond+1) not in visited and maze[currentFirst][currentSecond+1] == 0:
                         temp = (currentFirst, currentSecond+1)
                         fringe.append(temp)
                         parentTracker[findILIndex(currentFirst, currentSecond+1, len(maze))]["previous"] = [currentFirst, currentSecond]
                 #after done, add node to visited
                 visited.add((currentFirst, currentSecond))
-                maze[currentFirst][currentSecond] = 3
+                #maze[currentFirst][currentSecond] = 3
     
     return ["No path"]
 
@@ -556,7 +556,7 @@ def visualizeShortestA(maze, firstLocation, secondLocation):
 
 #print(checkPathDFS(maze_generator(50, 0.3), [1, 0], [49, 49]))
 #print(visualizeDFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
-#print(findShortestBFS(maze_generator(100, 0.3), [1, 1], [99, 99]))
+#print(findShortestBFS(maze_generator(1250, 0.3), [0, 0], [1249, 1249]))
 #print(visualizeBFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
 #print(findShortestA(maze_generator(1250, 0.3), [0, 0], [1249, 1249]))
 #print(visualizeShortestA(maze_generator(600, 0.3), [0, 0], [99, 99]))

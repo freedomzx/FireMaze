@@ -46,13 +46,20 @@ def advance_fire(maze, q):
                     #print("fire spread at [{}][{}]".format(i, j))
 
 def start_fire(maze): #start fire with assumption that topleft + bottomright are start/goal
-    row = -1
-    column = -1
-    while (row == -1 or row == 0 or row == len(maze)-1):
-        row = random.randint(0, len(maze)-1)
-    while (column == -1 or column == 0 or column == len(maze)-1):
-        column = random.randint(0, len(maze)-1)
+    #find a free spot (matrix index = 0) to start 
+    while True:
+        row = -1
+        column = -1
+        while (row == -1 or row == 0 or row == len(maze)-1):
+            row = random.randint(0, len(maze)-1)
+        while (column == -1 or column == 0 or column == len(maze)-1):
+            column = random.randint(0, len(maze)-1)
+        if maze[row][column] == 0:
+            break
+        else:
+            continue
 
+    #set on fire
     maze[row][column] = 5
     #print("fire started at [{}][{}]".format(row, column))
 
@@ -60,9 +67,11 @@ def strategyOne(maze, q):
     start_fire(maze)
     shortestPath = []
     curr = [0, 0]
+    #check first if theres no apth from start
     shortestPath = findShortestBFS(maze, curr, [len(maze)-1, len(maze)-1])
     if shortestPath[0] == 'No path': 
         return -2
+    #iterate thru
     for i in range(len(shortestPath)):
         curr = shortestPath[i]
         if maze[curr[0]][curr[1]] == 5:
@@ -87,10 +96,6 @@ def strategyTwo(maze, q):
             #print("no where to go " + str(current))
             return -1
         current = shortestPath[1]
-        for i in range(len(maze)):
-            for j in range(len(maze)):
-                if maze[i][j] == 3:
-                    maze[i][j] = 0
         
         if maze[current[0]][current[1]] == 5:
             #print("died tragically in a fire")
@@ -102,8 +107,25 @@ def strategyTwo(maze, q):
 
     return 200
 
-#fire safe version of BFS using safety number (max 2)
-def safeBFS(maze, q, safety):
+#checks if there is a fire nearby based on given distance safety factor
+def checkSafety(maze, location, distance):
+    row = location[0]
+    col = location[1]
+    for i in range(row-distance, row+distance+1):
+        #use this to see how far the columns will be checked
+        rowDisplacement = abs(row - i)
+        #print(str(rowDisplacement))
+        for j in range(col - distance + rowDisplacement, col + distance - rowDisplacement+1):
+            if (i >= 0 and i < len(maze)) and (j >=0 and j < len(maze)):
+                #print(maze[i][j], end=' ')
+                if maze[i][j] == 5: #fire nearby
+                    return False
+        
+    return True #safe
+        
+#fire safe version of BFS using safety number
+#safety number = how far to try and keep away from fire
+def safeBFS(maze, firstLocation, secondLocation, safety):
     fringe = deque() #use a queue for BFS
     first = (firstLocation[0], firstLocation[1])
     fringe.append(first)
@@ -137,186 +159,66 @@ def safeBFS(maze, q, safety):
                 currentFirst = current[0]
                 currentSecond = current[1]
                 if currentFirst-1 >= 0 and currentFirst-1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #up
-                    if maze[currentFirst-1][currentSecond] == 0 and maze[currentFirst-1][currentSecond] not in visited:
+                    if (currentFirst-1,currentSecond) not in visited and maze[currentFirst-1][currentSecond] == 0 and checkSafety(maze, (currentFirst-1,currentSecond), safety):
                         temp = (currentFirst-1, currentSecond)
                         fringe.append(temp)
                         parentTracker[findILIndex(currentFirst-1, currentSecond, len(maze))]["previous"] = [currentFirst, currentSecond]
                 if currentFirst >= 0 and currentFirst < len(maze) and currentSecond-1 >= 0 and currentSecond-1 < len(maze): #left
-                    if maze[currentFirst][currentSecond-1] == 0 and maze[currentFirst][currentSecond-1] not in visited:
+                    if (currentFirst, currentSecond-1) not in visited and maze[currentFirst][currentSecond-1] == 0 and checkSafety(maze, (currentFirst,currentSecond-1), safety):
                         temp = (currentFirst, currentSecond-1)
                         fringe.append(temp)
                         parentTracker[findILIndex(currentFirst, currentSecond-1, len(maze))]["previous"] = [currentFirst, currentSecond]
                 if currentFirst+1 >= 0 and currentFirst+1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #down
-                    if maze[currentFirst+1][currentSecond] == 0 and maze[currentFirst+1][currentSecond] not in visited:
+                    if (currentFirst+1, currentSecond) not in visited and maze[currentFirst+1][currentSecond] == 0 and checkSafety(maze, (currentFirst+1,currentSecond), safety):
                         temp = (currentFirst+1, currentSecond)
                         fringe.append(temp)
                         parentTracker[findILIndex(currentFirst+1, currentSecond, len(maze))]["previous"] = [currentFirst, currentSecond]
                 if currentFirst >= 0 and currentFirst < len(maze) and currentSecond+1 >= 0 and currentSecond+1 < len(maze): #right
-                    if maze[currentFirst][currentSecond+1] == 0 and maze[currentFirst][currentSecond+1] not in visited:
+                    if (currentFirst, currentSecond+1) not in visited and maze[currentFirst][currentSecond+1] == 0 and checkSafety(maze, (currentFirst,currentSecond+1), safety):
                         temp = (currentFirst, currentSecond+1)
                         fringe.append(temp)
                         parentTracker[findILIndex(currentFirst, currentSecond+1, len(maze))]["previous"] = [currentFirst, currentSecond]
                 #after done, add node to visited
                 visited.add((currentFirst, currentSecond))
-                maze[currentFirst][currentSecond] = 3
+                #maze[currentFirst][currentSecond] = 3
     
     return ["No path"]
 
-def strategyThree(maze, q):
-    
-
-
-def visualizeStrategyOne(maze, q):
-    dimen = len(maze)
-    width = 5
-    height = 5
-    margin = 0
-
-    pygame.init()
-    screen = pygame.display.set_mode([700, 700])
-    pygame.display.set_caption("DFS Visualization")
-    screen.fill(black)
-    clock = pygame.time.Clock()
+def strategyThree(maze, q, safety):
     start_fire(maze)
-
-    for i in range(dimen):
-        for j in range(dimen):
-            color = white
-            if i == maze[0][0] and j == maze[0][0]:
-                color = green #color start green
-            elif i == maze[len(maze)-1][len(maze)-1] and j == maze[len(maze)-1][len(maze)-1]:
-                color = red #color goal red
-            elif maze[i][j] == 1:
-                color = black
-            elif maze[i][j] == 5: #color fire orange
-                color = orange
-            pygame.draw.rect(screen,
-                            color,
-                            [(margin + width) * j + margin,
-                            (margin + height) * i + margin,
-                            width,
-                            height])
-            
-    pygame.display.flip()
-    success = False
-    done = False
-    while not done:
-        for event in pygame.event.get(): 
-            if event.type == pygame.QUIT:  
-                done = True 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                done = True
-        shortestPath = []
-        curr = [0, 0]
-        shortestPath = findShortestBFS(maze, curr, [len(maze)-1, len(maze)-1])
-        if shortestPath[0] == 'No path': 
-            print(-2)
-        for i in range(len(shortestPath)):
-            curr = shortestPath[i]
-            print(curr)
-            if maze[curr[0]][curr[1]] == 5:
-                print('-1')
-            if maze[curr[0]][curr[1]] == maze[len(maze)-1][len(maze)-1]:
-                print('200')
-            advance_fire(maze, q)
-            maze[curr[0]][curr[1]] = 3
-            color = blue
-            pygame.draw.rect(screen,
-                                    color,
-                                    [(margin + width) * curr[1] + margin,
-                                    (margin + height) * curr[0] + margin,
-                                    width,
-                                    height])
-            pygame.display.flip()           
-    pygame.quit()
-
-def visualizeStrategyTwo(maze, q):
-    dimen = len(maze)
-    width = 5
-    height = 5
-    margin = 0
-
-    pygame.init()
-    screen = pygame.display.set_mode([700, 700])
-    pygame.display.set_caption("DFS Visualization")
-    screen.fill(black)
-    clock = pygame.time.Clock()
-
-    for i in range(dimen):
-        for j in range(dimen):
-            color = white
-            if i == firstLocation[0] and j == firstLocation[1]:
-                color = green #color start green
-            elif i == secondLocation[0] and j == secondLocation[1]:
-                color = red #color goal red
-            elif maze[i][j] == 1:
-                color = black
-            pygame.draw.rect(screen,
-                            color,
-                            [(margin + width) * j + margin,
-                            (margin + height) * i + margin,
-                            width,
-                            height])
-            
-    pygame.display.flip()
-
-    success = False
-    done = False
-    while not done:
-        for event in pygame.event.get(): 
-            if event.type == pygame.QUIT:  
-                done = True 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                done = True
-
-        fringe = deque() #use a stack for DFS
-        fringe.append((firstLocation[0], firstLocation[1]))
-        visited = set()
-        while fringe:
-            current = fringe.pop()
-            if current[0] == secondLocation[0] and current[1] == secondLocation[1]: #if found goal then get out of here
+    #start from topleft
+    current = [0, 0]
+    if checkPathDFS(maze, current, [len(maze)-1, len(maze)-1]) == False:
+        #print("no initial path")
+        return -2
+    #follow computed shortest path step by step, recompute after each step
+    #HOWEVER we try to stay as far away from the fire as possible as well.
+    while True:
+        attempts = 0
+        success = False
+        status = []
+        while attempts < safety:
+            status = safeBFS(maze, current, (len(maze)-1, len(maze)-1), safety-attempts)
+            #try to see how far away you can stay from the fire
+            if status[0] == 'No path':
+                attempts += 1
+                continue
+            else:
                 success = True
                 break
-            else:
-                if current not in visited:
-                    currentFirst = current[0]
-                    currentSecond = current[1]
-                    #check 4 neighbors to see which we can add to fringe
-                    if currentFirst-1 >= 0 and currentFirst-1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #up
-                        temp = (currentFirst-1, currentSecond)
-
-                        if maze[temp[0]][temp[1]] == 0 and temp not in visited:
-                            fringe.append(temp)
-                    if currentFirst >= 0 and currentFirst < len(maze) and currentSecond-1 >= 0 and currentSecond-1 < len(maze): #left
-                        temp = (currentFirst, currentSecond-1)
-
-                        if maze[temp[0]][temp[1]] == 0 and temp not in visited:
-                            fringe.append(temp)
-                    if currentFirst+1 >= 0 and currentFirst+1 < len(maze) and currentSecond >= 0 and currentSecond < len(maze): #down
-                        temp = (currentFirst+1, currentSecond)
-
-                        if maze[temp[0]][temp[1]] == 0 and temp not in visited:
-                            fringe.append(temp)
-                    if currentFirst >= 0 and currentFirst < len(maze) and currentSecond+1 >= 0 and currentSecond+1 < len(maze): #right
-                        temp = (currentFirst, currentSecond+1)
-
-                        if maze[temp[0]][temp[1]] == 0 and temp not in visited:
-                            fringe.append(temp)
-
-                    maze[current[0]][current[1]] = 3
-                    color = blue
-                    pygame.draw.rect(screen,
-                                color,
-                                [(margin + width) * current[1] + margin,
-                                (margin + height) * current[0] + margin,
-                                width,
-                                height])
-                    pygame.display.flip()
-                    visited.add(current)
-                    
-    pygame.quit()
-    return success
-        
+        #check
+        if not success:
+            #print("no where to go " + str(current))
+            return -1
+        current = status[1]
+        if maze[current[0]][current[1]] == 5:
+            #print("died tragically in a fire")
+            return -1
+        elif current == [len(maze)-1, len(maze)-1]:
+            #print("found goal")
+            return 200
+        advance_fire(maze, q)
+    return 200
 
 testMaze = [[0, 1, 0, 1, 1],
             [0, 0, 0, 0, 1],
@@ -324,6 +226,9 @@ testMaze = [[0, 1, 0, 1, 1],
             [1, 0, 0, 1, 0],
             [0, 1, 0, 0, 0]]
 #print(checkPathDFS(testMaze, [1, 0], [4, 4]))
-#print(findShortestBFS(testMaze, [0, 0], [4, 4]))
-#print(strategyTwo(maze_generator(100, 0.3), 0.3))
+#print(findShortestBFS(maze_generator(100, 0.3), [0, 0], [99, 99]))
+#print(strategyTwo(maze_generator(100, 0.2), 0.2))
 #print(strategyOne(maze_generator(150, 0.3), 0.05))
+#print(findShortestBFS(testMaze, [0, 0], [4, 4]))
+# print(safeBFS(testMaze, [0, 0], [4, 4], 3))
+#print(strategyThree(maze_generator(50, 0.2), 0.2, 2))

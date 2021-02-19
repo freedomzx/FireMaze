@@ -3,10 +3,11 @@ import decimal
 import pygame
 import time
 def maze_generator(x, obstacle_density):
-    # since maze is a 2d array
+    # since maze is a 2d array, start with list
     maze = []
     obstacles_threshold = obstacle_density * 100
 
+    #go through every index and randomly see whether or not it will be an obstacle
     for i in range(x):
         maze_line = []
         for j in range(x):
